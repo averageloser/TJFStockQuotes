@@ -27,6 +27,7 @@ import java.util.List;
 public class FragmentList extends android.support.v4.app.Fragment {
     private RecyclerView recyclerView;
     private StockQuoteAdapter adapter;
+    List<StockQuote> quotes = new ArrayList();
 
     public FragmentList() {
 
@@ -46,8 +47,7 @@ public class FragmentList extends android.support.v4.app.Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        List<StockQuote> quotes = new ArrayList();
-
+        /*
         for (int i = 0; i < 30; i++) {
             StockQuote quote = new StockQuote();
             quote.setName(String.valueOf(i));
@@ -56,10 +56,17 @@ public class FragmentList extends android.support.v4.app.Fragment {
 
             Log.i("quote", quote.toString());
         }
+        */
 
         adapter = new StockQuoteAdapter(quotes);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
+    }
+
+    //Adds a StockQuote to the adapter and updates it.
+    public void addStockQuote(StockQuote quote) {
+        quotes.add(quote);
+        recyclerView.getAdapter().notifyDataSetChanged();
     }
 }

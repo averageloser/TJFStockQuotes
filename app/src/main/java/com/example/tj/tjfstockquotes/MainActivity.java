@@ -1,44 +1,72 @@
 package com.example.tj.tjfstockquotes;
 
-import android.support.v4.app.Fragment;
 import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 
 import com.example.tj.tjfstockquotes.Model.StockQuote;
-import com.example.tj.tjfstockquotes.Model.StockQuoteAdapter;
+import com.example.tj.tjfstockquotes.Model.StockQuoteModel;
 import com.example.tj.tjfstockquotes.UI.FragmentList;
+import com.example.tj.tjfstockquotes.util.StockQuoteDownloader;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONException;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.IOException;
+
+public class MainActivity extends AppCompatActivity implements StockQuoteDownloader.StockQuoteDownloaderListener {
     private Toolbar toolbar;
     private FloatingActionButton fab;
+    private StockQuoteModel model;
 
+    private FragmentList listFragment;
+    private StockQuoteDownloader downloader;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        init();
+    }
+
+    private void init() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setTitle("TJF Stock Quotes");
 
         setSupportActionBar(toolbar);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        final EditText symbolField = (EditText) findViewById(R.id.symbolField);
 
-        Fragment listFragment = new FragmentList();
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSymbolData(symbolField.getText().toString());
+            }
+        });
+
+        model = new StockQuoteModel();
+
+        listFragment = new FragmentList();
 
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, listFragment).commit();
+
+        //Add the downloader to the activity.
+        downloader = new StockQuoteDownloader();
+        downloader.setListener(this);
+
+        getSupportFragmentManager().beginTransaction().add(downloader, "dl").commit();
+    }
+
+    //Requests a stock quote from the model.  If successful, quote will be returned in onStockQuoteDownloaded() callback.
+    private void getSymbolData(String symbol) {
+        downloader.download(symbol);
     }
 
     @Override
@@ -61,5 +89,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /////////////////////////Callbacks for the quote downloader fragment///////////////////////
+    @Override
+    public void onStockQuoteDownloaded(StockQuote quote) {
+        listFragment.addStockQuote(quote);
+    }
+
+    //This does NOT happen on the UI thread!
+    @Override
+    public void onError(String error) {
+
     }
 }

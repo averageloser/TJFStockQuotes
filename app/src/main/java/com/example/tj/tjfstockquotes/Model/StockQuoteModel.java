@@ -22,6 +22,12 @@ import java.util.List;
  * Created by tom on 8/9/2015.
  */
 public class StockQuoteModel {
+    public interface StockQuoteModelListener {
+        void onStockQuoteDownloaded(StockQuote quote);
+        void onAllStockQuotesDownloaded(List<StockQuote> quotes);
+        void onStockQuotesDownloadError();
+    }
+
     private final String urlStart = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(";
     private final String urlEnd = ")&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
     /**

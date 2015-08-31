@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.tj.tjfstockquotes"
-        minSdkVersion 19
-        targetSdkVersion 23
+        minSdkVersion 15
+        targetSdkVersion 15
         versionCode 1
         versionName "1.0"
     }
@@ -26,4 +26,5 @@ dependencies {
     compile 'com.android.support:design:23.0.0'
     compile 'com.android.support:recyclerview-v7:23.0.0'
     compile 'com.android.support:cardview-v7:23.0.0'
+    compile 'com.android.support:percent:22.2.0'
 }
