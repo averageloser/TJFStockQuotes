@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,11 +63,33 @@ public class FragmentList extends android.support.v4.app.Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
+                new ItemTouchHelper.SimpleCallback(ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder viewHolder1) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
+                removeStockQuote(i);
+            }
+        });
+
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
+    //Removes a stock quote when the user swipes it out of the recyclerview.
+    public void removeStockQuote(int position) {
+        quotes.remove(position);
+
+        adapter.notifyDataSetChanged();
+    }
     //Adds a StockQuote to the adapter and updates it.
     public void addStockQuote(StockQuote quote) {
         quotes.add(quote);
-        recyclerView.getAdapter().notifyDataSetChanged();
+
+        adapter.notifyDataSetChanged();
     }
 }
