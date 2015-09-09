@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -25,12 +26,13 @@ import java.util.List;
 /**
  * Created by tj on 8/29/2015.
  */
-public class FragmentList extends android.support.v4.app.Fragment {
+public class StockQuoteList extends android.support.v4.app.Fragment {
+
     private RecyclerView recyclerView;
     private StockQuoteAdapter adapter;
     List<StockQuote> quotes = new ArrayList();
 
-    public FragmentList() {
+    public StockQuoteList() {
 
     }
 
@@ -48,32 +50,22 @@ public class FragmentList extends android.support.v4.app.Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        /*
-        for (int i = 0; i < 30; i++) {
-            StockQuote quote = new StockQuote();
-            quote.setName(String.valueOf(i));
-
-            quotes.add(quote);
-
-            Log.i("quote", quote.toString());
-        }
-        */
-
         adapter = new StockQuoteAdapter(quotes);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder viewHolder1) {
-                return false;
+                return true;
             }
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
-                removeStockQuote(i);
+                removeStockQuote(viewHolder.getAdapterPosition());
             }
         });
 

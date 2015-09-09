@@ -1,31 +1,28 @@
 package com.example.tj.tjfstockquotes;
 
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 
 import com.example.tj.tjfstockquotes.Model.StockQuote;
 import com.example.tj.tjfstockquotes.Model.StockQuoteModel;
-import com.example.tj.tjfstockquotes.UI.FragmentList;
+import com.example.tj.tjfstockquotes.UI.StockQuoteList;
 import com.example.tj.tjfstockquotes.util.StockQuoteDownloader;
-
-import org.json.JSONException;
-
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements StockQuoteDownloader.StockQuoteDownloaderListener {
     private Toolbar toolbar;
     private FloatingActionButton fab;
     private StockQuoteModel model;
 
-    private FragmentList listFragment;
+    private StockQuoteList listFragment;
     private StockQuoteDownloader downloader;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,19 +38,9 @@ public class MainActivity extends AppCompatActivity implements StockQuoteDownloa
 
         setSupportActionBar(toolbar);
 
-        final EditText symbolField = (EditText) findViewById(R.id.symbolField);
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getSymbolData(symbolField.getText().toString());
-            }
-        });
-
         model = new StockQuoteModel();
 
-        listFragment = new FragmentList();
+        listFragment = new StockQuoteList();
 
         getSupportFragmentManager().beginTransaction().add(R.id.main_container, listFragment).commit();
 
@@ -62,6 +49,14 @@ public class MainActivity extends AppCompatActivity implements StockQuoteDownloa
         downloader.setListener(this);
 
         getSupportFragmentManager().beginTransaction().add(downloader, "dl").commit();
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSymbolData("GOOG");
+            }
+        });
     }
 
     //Requests a stock quote from the model.  If successful, quote will be returned in onStockQuoteDownloaded() callback.
@@ -100,6 +95,6 @@ public class MainActivity extends AppCompatActivity implements StockQuoteDownloa
     //This does NOT happen on the UI thread!
     @Override
     public void onError(String error) {
-
+        Log.i("error", error);
     }
 }

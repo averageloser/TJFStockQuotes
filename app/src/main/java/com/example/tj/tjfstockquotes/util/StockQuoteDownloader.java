@@ -1,6 +1,5 @@
 package com.example.tj.tjfstockquotes.util;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -46,8 +45,10 @@ public class StockQuoteDownloader extends android.support.v4.app.Fragment {
         protected StockQuote doInBackground(String... params) {
             StockQuote quote = null;
 
+            StockQuoteModel model = new StockQuoteModel();
+
             try {
-                quote = new StockQuoteModel().getStockQuote(params[0]);
+                quote = model.getStockQuote(params[0]);
             } catch (JSONException  | IOException e) {
                 //Notify listeners of th error.  This doesn't happen on the ui thread.
                 for (StockQuoteDownloaderListener listener : listeners) {
