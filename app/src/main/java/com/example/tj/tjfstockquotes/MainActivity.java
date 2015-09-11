@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements StockQuoteDownloa
 
         listFragment = new StockQuoteList();
 
-        getSupportFragmentManager().beginTransaction().add(R.id.main_container, listFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.main_container, listFragment)
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out).commit();
 
         //Add the downloader to the activity.
         downloader = new StockQuoteDownloader();
