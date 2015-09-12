@@ -1,18 +1,14 @@
 package com.example.tj.tjfstockquotes.UI;
 
 
-import android.graphics.Color;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -26,15 +22,35 @@ import java.util.List;
 /**
  * Created by tj on 8/29/2015.
  */
-public class StockQuoteList extends android.support.v4.app.Fragment {
+public class StockQuoteList extends android.support.v4.app.Fragment implements
+        StockQuoteAdapter.OnListItemClickListener {
 
+    public interface StockQuoteListActivityCallback {
+        void onItemClicked(StockQuote quote);
+    }
+
+    private StockQuoteListActivityCallback activity;
     private RecyclerView recyclerView;
     private StockQuoteAdapter adapter;
-    List<StockQuote> quotes = new ArrayList();
+    private List<StockQuote> quotes = new ArrayList();
 
     public StockQuoteList() {
 
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            activity = (StockQuoteListActivityCallback) getActivity();
+        } catch(ClassCastException e) {
+            Log.e("StockQuoteList Error", "Class Cast Exception.  Acivities must implement OnItemClicked");
+
+            throw new IllegalStateException("Acivities must implement OnItemClicked");
+        }
+    }
+
 
     @Nullable
     @Override
@@ -51,10 +67,10 @@ public class StockQuoteList extends android.support.v4.app.Fragment {
         super.onActivityCreated(savedInstanceState);
 
         adapter = new StockQuoteAdapter(quotes);
+        adapter.addItemClickListener(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT) {
@@ -72,16 +88,22 @@ public class StockQuoteList extends android.support.v4.app.Fragment {
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    //Removes a stock quote when the user swipes it out of the recyclerview.
+    //Removes a stock quote when the user swipes it out of the recyclerview.  Can be handled without the activity.
     public void removeStockQuote(int position) {
         quotes.remove(position);
 
         adapter.notifyDataSetChanged();
     }
-    //Adds a StockQuote to the adapter and updates it.
+    //Adds a StockQuote to the adapter and updates it.  Can be handled without the activity.
     public void addStockQuote(StockQuote quote) {
         quotes.add(quote);
 
         adapter.notifyDataSetChanged();
+    }
+
+    //When an item in the adapter is clicked, get the StockQuote and pass it to the activity for processing.
+    @Override
+    public void onListItemClicked(int position) {
+        activity.onItemClicked(quotes.get(position));
     }
 }

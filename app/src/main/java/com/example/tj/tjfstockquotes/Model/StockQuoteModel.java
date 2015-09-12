@@ -4,6 +4,7 @@ package com.example.tj.tjfstockquotes.Model;
  * Created by tj on 8/29/2015.
  */
 
+import android.net.Uri;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -16,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -28,13 +30,13 @@ public class StockQuoteModel {
         void onStockQuotesDownloadError();
     }
 
-    private final String urlStart = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(";
-    private final String urlEnd = ")&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
+    private final String BASEURL = "http://dev.markitondemand.com/Api/v2/Lookup/jsonp?input=NFLX&callback=myFunction";
     /**
      * @param url - String url location of rest data.
      * @return - String containing json data for parsing.
      */
     private String getJSONData(String url) throws IOException {
+
         URL restLocation = null;
         HttpURLConnection conn = null;
         BufferedReader reader = null;
@@ -55,7 +57,11 @@ public class StockQuoteModel {
 
         conn.disconnect();
 
-        return builder.toString();
+        String response = builder.toString().substring(19, builder.toString().length() - 2);
+
+        Log.i("response", response);
+
+        return response;
     }
 
     /**
@@ -66,45 +72,29 @@ public class StockQuoteModel {
      * @throws IOException
      */
     public StockQuote getStockQuote(String symbol) throws JSONException, IOException {
-        String responseData = getJSONData(urlStart + "%22" + symbol + "%22" + urlEnd);
+        Uri uri = new Uri.Builder()
+            .scheme("http")
+            .authority("dev.markitondemand.com")
+            .appendPath("Api")
+            .appendPath("V2")
+            .appendPath("Lookup")
+            .appendPath("jsonp")
+            .appendQueryParameter("input", symbol.toUpperCase()).build();
 
-        Log.i("getQuote", responseData);
+        String responseData = getJSONData(uri.toString());
+
+        /*Set all Stock Quote information here.  I don't actually do that, so you will need to call
+         the appropriate setters for the info you want. I just get name and price for this example.*/
 
         StockQuote stockQuote = new StockQuote();
 
-        JSONObject response = new JSONObject(responseData);
+        //The first result is the exact match.
+        JSONObject result = new JSONObject(responseData);
 
-        JSONObject query = response.getJSONObject("query");
-
-        JSONObject results = query.getJSONObject("results");
-
-        JSONObject resultsQuote = results.getJSONObject("quote");
-
-        stockQuote.setName(resultsQuote.getString("Name"));
+        stockQuote.setSymbol(symbol.toUpperCase());
+        stockQuote.setName(result.getString("Name"));
+        stockQuote.setExchange(result.getString("Exchange"));
 
         return stockQuote;
-    }
-
-    public List<StockQuote> getStockQuoteList(String... symbols) throws IOException, JSONException {
-        String urlOption = "%2C";
-
-        List<StockQuote> quotes = new ArrayList();
-
-        String symbolsParam = "";
-
-        for (int i = 0; i < symbols.length; i++) {
-            symbolsParam += "%22" + symbols[i] + "%22";
-
-            //Add a comma after all symbols, except for the last.
-            if (i < symbols.length - 1) {
-                symbolsParam += "%2C";
-            }
-        }
-
-        String url = getJSONData(urlStart + symbolsParam + urlEnd);
-
-        Log.i("URL", url);
-
-        return quotes;
     }
 }
